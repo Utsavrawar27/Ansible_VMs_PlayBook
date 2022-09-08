@@ -1,0 +1,31 @@
+#UninstallNginx.yml
+---
+ - hosts: webserver
+   user: root
+   become: yes
+
+   tasks:
+
+    - name: Remove EPEL
+      yum:
+       name: epel-release.noarch
+       state: absent
+
+    - name: Disable EPEL
+      command: amazon-linux-extras disable epel
+
+    - name: Uninstall Nginx
+      yum:
+       name: nginx
+       state: absent
+
+    - name: Stop firewalld
+      service:
+        name: firewalld
+        state: stopped
+        enabled: yes
+
+    - name: Uninstall firewalld
+      yum:
+       name: firewalld
+       state: absent

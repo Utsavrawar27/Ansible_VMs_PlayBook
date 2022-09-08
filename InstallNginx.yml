@@ -1,0 +1,48 @@
+#InstallNginx.yml
+---
+ - hosts: webserver
+   user: root
+   become: yes
+
+   tasks:
+
+    - name: Install EPEL
+      command: amazon-linux-extras install epel -y
+
+    - name: Install Nginx
+      yum:
+       name: nginx
+       state: present
+
+    - name: Change port nginx to 8080
+      replace:
+       path: /etc/nginx/nginx.conf
+       regexp: '80'
+       replace: '8080'
+
+    - name: add index.html file
+      template:
+       src: ./index.html
+       dest: /usr/share/nginx/html/index.html
+
+    - name: Install firewalld
+      yum:
+       name: firewalld
+       state: present
+
+    - name: start firewalld
+      service:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: allow all access to tcp port 8080
+      firewalld:
+       port: 8080/tcp
+       zone: public
+       state: enabled
+
+    - name: Start Nginx
+      service:
+       name: nginx
+       state: started
